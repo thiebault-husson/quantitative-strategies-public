@@ -1,0 +1,750 @@
+<h2>Performance Charts</h2>
+
+<!-- Large Performance Chart - Full Width -->
+<div class="performance-chart-container">
+  <div class="chart-block large-chart">
+    <h3>Cumulative Performance (Base 100) - Strategy vs Benchmark</h3>
+    <div id="performance-chart" class="chart-container large-chart-container"></div>
+  </div>
+</div>
+
+<!-- Performance Overview Section -->
+<div class="chart-section">
+  <h3 class="section-title">Performance Overview</h3>
+  <div class="charts-grid performance-overview">
+    <!-- Drawdown Analysis -->
+    <div class="chart-block">
+      <h3>Cumulative Drawdown from Peak</h3>
+      <div id="drawdown-chart" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Note:</strong> Shows drawdown from the highest point reached. Negative values indicate decline from peak.
+      </div>
+    </div>
+
+    <!-- Returns Distribution -->
+    <div class="chart-block">
+      <h3>Returns Distribution</h3>
+      <div id="returns-histogram" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Note:</strong> Distribution of daily returns. Helps identify return patterns and outliers.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Risk & Volatility Analysis Section -->
+<div class="chart-section">
+  <h3 class="section-title">Risk & Volatility Analysis</h3>
+  <div class="charts-grid risk-analysis">
+    <!-- Rolling Sharpe Ratio -->
+    <div class="chart-block">
+      <h3>Rolling Sharpe Ratio (60-Day Window)</h3>
+      <div id="rolling-sharpe" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Note:</strong> 60-day rolling window, annualized. Window adjusts for shorter datasets.
+      </div>
+    </div>
+
+    <!-- Rolling Beta -->
+    <div class="chart-block">
+      <h3>Rolling Beta (60-Day Window)</h3>
+      <div id="rolling-beta" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Note:</strong> 60-day rolling window. Shows how strategy's sensitivity to benchmark changes over time.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Correlation & Exposure Analysis Section -->
+<div class="chart-section">
+  <h3 class="section-title">Correlation & Exposure Analysis</h3>
+  <div class="charts-grid correlation-analysis">
+    <!-- Strategy vs Benchmark Scatter Plot -->
+    <div class="chart-block">
+      <h3>Strategy vs Benchmark Returns Scatter</h3>
+      <div id="scatter-plot" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Beta Calculation:</strong> β = Cov(Strategy Returns, Benchmark Returns) / Var(Benchmark Returns)
+      </div>
+    </div>
+
+    <!-- Exposure Over Time -->
+    <div class="chart-block">
+      <h3>Portfolio Exposure Over Time</h3>
+      <div id="exposure-chart" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Note:</strong> Shows portfolio exposure and allocation changes over time.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Risk Metrics Section -->
+<div class="chart-section">
+  <h3 class="section-title">Advanced Risk Metrics</h3>
+  <div class="charts-grid advanced-risk">
+    <!-- VaR Over Time -->
+    <div class="chart-block">
+      <h3>Value-at-Risk Over Time</h3>
+      <div id="var-chart" class="chart-container"></div>
+      <div class="chart-note">
+        <strong>Calculation Method:</strong> 30-day rolling window historical VaR (5th percentile). The step-like appearance occurs because VaR changes only when the worst return in the rolling window changes. <strong>Note:</strong> Shows potential loss estimates at 95% confidence level.
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.performance-chart-container {
+  margin-bottom: 2rem;
+}
+
+.large-chart {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.large-chart h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.large-chart-container {
+  height: 500px;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.large-chart-container > div {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+</style>
+
+<script>
+// Initialize charts with Plotly
+document.addEventListener('DOMContentLoaded', function() {
+  // Large Performance Chart
+  if (document.getElementById('performance-chart')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    
+    if (chartData && chartData.equity_curve) {
+      const dates = chartData.equity_curve.dates;
+      const strategyValues = chartData.equity_curve.strategy_values;
+      const benchmarkValues = chartData.equity_curve.benchmark_values;
+      
+      const performanceData = [
+        {
+          x: dates,
+          y: strategyValues,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Strategy',
+          line: {
+            color: '#2563eb',
+            width: 3
+          },
+          hovertemplate: '<b>Strategy</b><br>' +
+                        'Date: %{x}<br>' +
+                        'Value: %{y:.1f}<br>' +
+                        '<extra></extra>'
+        },
+        {
+          x: dates,
+          y: benchmarkValues,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Benchmark (S&P 500)',
+          line: {
+            color: '#64748b',
+            width: 2,
+            dash: 'dash'
+          },
+          hovertemplate: '<b>Benchmark</b><br>' +
+                        'Date: %{x}<br>' +
+                        'Value: %{y:.1f}<br>' +
+                        '<extra></extra>'
+        }
+      ];
+      
+      const performanceLayout = {
+        title: {
+          text: 'Cumulative Performance Comparison (Base 100)',
+          font: {size: 16, color: '#1f2937'}
+        },
+        xaxis: {
+          title: 'Date',
+          gridcolor: '#e5e7eb',
+          tickfont: {size: 12}
+        },
+        yaxis: {
+          title: 'Index Value (Base 100)',
+          gridcolor: '#e5e7eb',
+          tickfont: {size: 12}
+        },
+        legend: {
+          x: 0.02,
+          y: 0.98,
+          bgcolor: 'rgba(255,255,255,0.8)',
+          bordercolor: '#e5e7eb',
+          borderwidth: 1
+        },
+        margin: {t: 60, b: 60, l: 80, r: 40},
+        hovermode: 'x unified',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        font: {color: '#374151'}
+      };
+      
+      Plotly.newPlot('performance-chart', performanceData, performanceLayout, {
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d', 'autoScale2d'],
+        displaylogo: false
+      });
+    }
+  }
+
+  // Rolling Sharpe Ratio
+  if (document.getElementById('rolling-sharpe')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.rolling_metrics) {
+      const rollingSharpeData = [
+        {
+          x: chartData.rolling_metrics.dates,
+          y: chartData.rolling_metrics.rolling_sharpe,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'Strategy Sharpe',
+          line: {color: '#2563eb', width: 2},
+          marker: {size: 4}
+        },
+        {
+          x: chartData.rolling_metrics.dates,
+          y: chartData.rolling_metrics.benchmark_rolling_sharpe,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'Benchmark Sharpe',
+          line: {color: '#64748b', width: 2, dash: 'dash'},
+          marker: {size: 4}
+        }
+      ];
+      
+      const rollingSharpeLayout = {
+        title: {text: 'Rolling Sharpe Ratio (60-Day Window)', font: {size: 14}},
+        xaxis: {title: ''},
+        yaxis: {title: 'Sharpe Ratio (Annualized)'},
+        margin: {t: 40, b: 80, l: 50, r: 20}, // Increased bottom margin for legend
+        hovermode: 'x unified',
+        legend: {
+          orientation: 'h', // Horizontal legend
+          x: 0.5, // Center horizontally
+          y: -0.2, // Position below the chart
+          xanchor: 'center',
+          yanchor: 'top'
+        }
+      };
+      
+      Plotly.newPlot('rolling-sharpe', rollingSharpeData, rollingSharpeLayout, {
+        responsive: true,
+        displayModeBar: false
+      });
+    }
+  }
+
+  // Rolling Beta Chart
+  if (document.getElementById('rolling-beta')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.rolling_metrics) {
+      const rollingBetaData = [
+        {
+          x: chartData.rolling_metrics.dates,
+          y: chartData.rolling_metrics.rolling_beta,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'Rolling Beta',
+          line: {color: '#8b5cf6', width: 2},
+          marker: {size: 4},
+          hovertemplate: '<b>Rolling Beta</b><br>' +
+                        'Date: %{x}<br>' +
+                        'Beta: %{y:.3f}<br>' +
+                        '<extra></extra>'
+        }
+      ];
+      
+      const rollingBetaLayout = {
+        title: {text: 'Rolling Beta (60-Day Window)', font: {size: 14}},
+        xaxis: {title: ''},
+        yaxis: {
+          title: 'Beta',
+          zeroline: true,
+          zerolinecolor: '#6b7280',
+          zerolinewidth: 1,
+          showgrid: true,
+          gridcolor: '#e5e7eb'
+        },
+        margin: {t: 40, b: 60, l: 50, r: 20},
+        hovermode: 'x unified',
+        shapes: [
+          {
+            type: 'line',
+            x0: chartData.rolling_metrics.dates[0],
+            x1: chartData.rolling_metrics.dates[chartData.rolling_metrics.dates.length - 1],
+            y0: 0,
+            y1: 0,
+            line: {
+              color: '#6b7280',
+              width: 1,
+              dash: 'dash'
+            }
+          }
+        ]
+      };
+      
+      Plotly.newPlot('rolling-beta', rollingBetaData, rollingBetaLayout, {
+        responsive: true,
+        displayModeBar: false
+      });
+    }
+  }
+
+  // Drawdown Chart
+  if (document.getElementById('drawdown-chart')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.drawdown) {
+      const drawdownData = [
+        {
+          x: chartData.drawdown.dates,
+          y: chartData.drawdown.drawdown_series.map(d => d * 100), // Convert to percentage
+          type: 'scatter',
+          fill: 'tonexty',
+          fillcolor: 'rgba(239, 68, 68, 0.2)',
+          line: {color: '#ef4444', width: 2},
+          name: 'Strategy Drawdown %'
+        },
+        {
+          x: chartData.drawdown.dates,
+          y: chartData.drawdown.benchmark_drawdown_series.map(d => d * 100), // Convert to percentage
+          type: 'scatter',
+          mode: 'lines',
+          line: {color: '#64748b', width: 2, dash: 'dash'},
+          name: 'Benchmark Drawdown %'
+        }
+      ];
+      
+      const drawdownLayout = {
+        title: {text: 'Cumulative Drawdown from Peak', font: {size: 14}},
+        xaxis: {
+          title: 'Date',
+          side: 'top' // Move x-axis to top
+        },
+        yaxis: {
+          title: 'Drawdown (%) - Negative values indicate decline from peak',
+          range: [0, -50], // Start at 0 (top) and go down to -50%
+          tickmode: 'linear',
+          tick0: 0,
+          dtick: 10,
+          autorange: 'reversed' // This inverts the y-axis so 0 is at top
+        },
+        margin: {t: 60, b: 60, l: 50, r: 20}, // Increase bottom margin for legend
+        hovermode: 'x unified',
+        legend: {
+          orientation: 'h', // Horizontal legend
+          x: 0.5, // Center horizontally
+          y: -0.15, // Position below the chart
+          xanchor: 'center',
+          yanchor: 'top'
+        },
+        shapes: [
+          {
+            type: 'line',
+            x0: chartData.drawdown.dates[0],
+            x1: chartData.drawdown.dates[chartData.drawdown.dates.length - 1],
+            y0: 0,
+            y1: 0,
+            line: {
+              color: '#6b7280',
+              width: 1,
+              dash: 'dash'
+            }
+          }
+        ]
+      };
+      
+      Plotly.newPlot('drawdown-chart', drawdownData, drawdownLayout, {
+        responsive: true,
+        displayModeBar: false
+      });
+    }
+  }
+
+  // Returns Histogram - Fixed y-axis display and x-axis labels
+  if (document.getElementById('returns-histogram')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.returns_distribution) {
+      const returns = chartData.returns_distribution.returns.map(r => r * 100); // Convert to percentage
+      
+      // Calculate range for centered bins
+      const maxAbsReturn = Math.max(...returns.map(r => Math.abs(r)));
+      const binRange = Math.ceil(maxAbsReturn * 1.2); // 20% buffer
+      
+      const histogramData = {
+        x: returns,
+        type: 'histogram',
+        nbinsx: 50, // More bins for better resolution
+        name: 'Returns',
+        marker: {
+          color: '#2563eb',
+          opacity: 0.7
+        }
+      };
+      
+      const histogramLayout = {
+        title: {text: 'Returns Distribution', font: {size: 14}},
+        xaxis: {
+          title: 'Return (%)',
+          range: [-binRange, binRange], // Center around 0
+          zeroline: true,
+          zerolinecolor: '#6b7280',
+          zerolinewidth: 2,
+          tickangle: 0, // Ensure labels are horizontal
+          tickfont: {size: 10} // Smaller font for better fit
+        },
+        yaxis: {
+          title: 'Frequency',
+          side: 'left', // Keep y-axis on the left for better visibility
+          zeroline: true,
+          zerolinecolor: '#6b7280',
+          zerolinewidth: 1,
+          showgrid: true,
+          gridcolor: '#e5e7eb'
+        },
+        margin: {t: 40, b: 60, l: 50, r: 20}, // Increased bottom margin for x-axis labels
+        bargap: 0.05, // Smaller gap between bars
+        showlegend: false
+      };
+      
+      Plotly.newPlot('returns-histogram', [histogramData], histogramLayout, {
+        responsive: true,
+        displayModeBar: false
+      });
+    }
+  }
+
+  // Strategy vs Benchmark Scatter Plot with Beta
+  if (document.getElementById('scatter-plot')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.returns_distribution && chartData.equity_curve) {
+      const strategyReturns = chartData.returns_distribution.returns.map(r => r * 100); // Convert to percentage
+      
+      // Use the same benchmark returns calculation as the backend
+      // Calculate benchmark returns from equity curve (same method as backend)
+      const benchmarkValues = chartData.equity_curve.benchmark_values;
+      const benchmarkReturns = [];
+      for (let i = 1; i < benchmarkValues.length; i++) {
+        const ret = ((benchmarkValues[i] - benchmarkValues[i-1]) / benchmarkValues[i-1]) * 100;
+        benchmarkReturns.push(ret);
+      }
+      
+      // Ensure both arrays have the same length
+      const minLength = Math.min(strategyReturns.length, benchmarkReturns.length);
+      const strategyRet = strategyReturns.slice(0, minLength);
+      const benchmarkRet = benchmarkReturns.slice(0, minLength);
+      
+      // Calculate beta
+      const calculateBeta = (strategy, benchmark) => {
+        if (strategy.length !== benchmark.length || strategy.length === 0) return 0;
+        
+        const n = strategy.length;
+        const meanStrategy = strategy.reduce((a, b) => a + b, 0) / n;
+        const meanBenchmark = benchmark.reduce((a, b) => a + b, 0) / n;
+        
+        let covariance = 0;
+        let benchmarkVariance = 0;
+        
+        for (let i = 0; i < n; i++) {
+          const strategyDiff = strategy[i] - meanStrategy;
+          const benchmarkDiff = benchmark[i] - meanBenchmark;
+          covariance += strategyDiff * benchmarkDiff;
+          benchmarkVariance += benchmarkDiff * benchmarkDiff;
+        }
+        
+        covariance /= n;
+        benchmarkVariance /= n;
+        
+        return benchmarkVariance !== 0 ? covariance / benchmarkVariance : 0;
+      };
+      
+      // Use beta from backend calculation for consistency with executive summary
+      const beta = {{ metrics.beta|default('null') }};
+      
+      // Only create scatter plot if beta is available
+      if (beta !== null && !isNaN(beta)) {
+        const scatterData = [
+          {
+            x: benchmarkRet,
+            y: strategyRet,
+            type: 'scatter',
+            mode: 'markers',
+            name: 'Daily Returns',
+            marker: {
+              color: '#2563eb',
+              size: 6,
+              opacity: 0.6
+            },
+            hovertemplate: '<b>Daily Returns</b><br>' +
+                          'Benchmark: %{x:.2f}%<br>' +
+                          'Strategy: %{y:.2f}%<br>' +
+                          '<extra></extra>'
+          }
+        ];
+        
+        // Add regression line
+        if (strategyRet.length > 1) {
+          const xRange = [Math.min(...benchmarkRet), Math.max(...benchmarkRet)];
+          const yRange = [beta * xRange[0], beta * xRange[1]];
+          
+          scatterData.push({
+            x: xRange,
+            y: yRange,
+            type: 'scatter',
+            mode: 'lines',
+            name: `Regression Line (β = ${beta.toFixed(3)})`,
+            line: {
+              color: '#ef4444',
+              width: 2,
+              dash: 'dash'
+            },
+            showlegend: true
+          });
+        }
+        
+        const scatterLayout = {
+          title: {text: 'Strategy vs Benchmark Returns Scatter', font: {size: 14}},
+          xaxis: {
+            title: 'Benchmark Return (%)',
+            zeroline: true,
+            zerolinecolor: '#6b7280',
+            zerolinewidth: 1
+          },
+          yaxis: {
+            title: 'Strategy Return (%)',
+            zeroline: true,
+            zerolinecolor: '#6b7280',
+            zerolinewidth: 1
+          },
+          margin: {t: 40, b: 80, l: 50, r: 20}, // Increased bottom margin for legend
+          hovermode: 'closest',
+          legend: {
+            orientation: 'h', // Horizontal legend
+            x: 0.5, // Center horizontally
+            y: -0.2, // Position below the chart
+            xanchor: 'center',
+            yanchor: 'top'
+          },
+          annotations: [
+            {
+              x: 0.05,
+              y: 0.95,
+              xref: 'paper',
+              yref: 'paper',
+              text: `Beta: ${beta.toFixed(3)}`,
+              showarrow: false,
+              font: {
+                size: 14,
+                color: '#ef4444'
+              },
+              bgcolor: 'rgba(255,255,255,0.8)',
+              bordercolor: '#ef4444',
+              borderwidth: 1
+            }
+          ]
+        };
+        
+        Plotly.newPlot('scatter-plot', scatterData, scatterLayout, {
+          responsive: true,
+          displayModeBar: false
+        });
+      }
+    }
+  }
+
+  // Exposure Chart - Fixed y-axis display and x-axis labels
+  if (document.getElementById('exposure-chart')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.equity_curve) {
+      // Create simple exposure based on strategy performance
+      const dates = chartData.equity_curve.dates;
+      const strategyValues = chartData.equity_curve.strategy_values;
+      const exposure = strategyValues.map(v => Math.min(1.0, Math.max(0.0, (v - 90) / 20))); // Simple exposure calculation
+      
+      const exposureData = [
+        {
+          x: dates,
+          y: exposure,
+          type: 'scatter',
+          mode: 'lines',
+          name: 'Portfolio Exposure',
+          line: {color: '#10b981', width: 2}
+        }
+      ];
+      
+      const exposureLayout = {
+        title: {text: 'Portfolio Exposure Over Time', font: {size: 14}},
+        xaxis: {
+          title: 'Date',
+          tickangle: 0, // Ensure labels are horizontal
+          tickfont: {size: 10} // Smaller font for better fit
+        },
+        yaxis: {
+          title: 'Exposure Ratio',
+          range: [0, 1], // Fixed range for better visibility
+          tickmode: 'linear',
+          tick0: 0,
+          dtick: 0.2,
+          zeroline: true,
+          zerolinecolor: '#6b7280',
+          zerolinewidth: 1,
+          showgrid: true,
+          gridcolor: '#e5e7eb'
+        },
+        margin: {t: 40, b: 60, l: 50, r: 20}, // Increased bottom margin for x-axis labels
+        hovermode: 'x unified'
+      };
+      
+      Plotly.newPlot('exposure-chart', exposureData, exposureLayout, {
+        responsive: true,
+        displayModeBar: false
+      });
+    }
+  }
+
+  // VaR Chart - Fixed y-axis display and x-axis labels
+  if (document.getElementById('var-chart')) {
+    const chartData = JSON.parse('{{ charts_data|safe }}');
+    if (chartData && chartData.returns_distribution) {
+      const strategyReturns = chartData.returns_distribution.returns;
+      const dates = chartData.equity_curve.dates;
+      
+      // Get benchmark returns if available
+      let benchmarkReturns = [];
+      if (chartData.equity_curve.benchmark_values && chartData.equity_curve.benchmark_values.length > 0) {
+        // Calculate benchmark returns from benchmark values
+        const benchmarkValues = chartData.equity_curve.benchmark_values;
+        benchmarkReturns = [];
+        for (let i = 1; i < benchmarkValues.length; i++) {
+          const dailyReturn = (benchmarkValues[i] - benchmarkValues[i-1]) / benchmarkValues[i-1];
+          benchmarkReturns.push(dailyReturn);
+        }
+        // Pad with null to match strategy returns length
+        benchmarkReturns.unshift(null);
+      }
+      
+      // Calculate rolling VaR (95%) for strategy
+      const windowSize = 30;
+      const strategyVarSeries = [];
+      for (let i = windowSize; i < strategyReturns.length; i++) {
+        const window = strategyReturns.slice(i - windowSize, i).filter(r => r !== null);
+        if (window.length >= windowSize * 0.8) { // Require at least 80% of window to be filled
+          window.sort((a, b) => a - b);
+          const var95 = window[Math.floor(window.length * 0.05)] * 100; // 5th percentile
+          strategyVarSeries.push(var95);
+        } else {
+          strategyVarSeries.push(null);
+        }
+      }
+      
+      // Calculate rolling VaR (95%) for benchmark
+      const benchmarkVarSeries = [];
+      if (benchmarkReturns.length > windowSize) {
+        for (let i = windowSize; i < benchmarkReturns.length; i++) {
+          const window = benchmarkReturns.slice(i - windowSize, i).filter(r => r !== null);
+          if (window.length >= windowSize * 0.8) { // Require at least 80% of window to be filled
+            window.sort((a, b) => a - b);
+            const var95 = window[Math.floor(window.length * 0.05)] * 100; // 5th percentile
+            benchmarkVarSeries.push(var95);
+          } else {
+            benchmarkVarSeries.push(null);
+          }
+        }
+      }
+      
+      const varData = [
+        {
+          x: dates.slice(windowSize),
+          y: strategyVarSeries,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'Strategy 95% VaR',
+          line: {color: '#f59e0b', width: 2},
+          marker: {size: 4},
+          hovertemplate: '<b>Strategy VaR</b><br>' +
+                        'Date: %{x}<br>' +
+                        'VaR: %{y:.2f}%<br>' +
+                        '<extra></extra>'
+        }
+      ];
+      
+      // Add benchmark VaR if available
+      if (benchmarkVarSeries.length > 0) {
+        varData.push({
+          x: dates.slice(windowSize),
+          y: benchmarkVarSeries,
+          type: 'scatter',
+          mode: 'lines+markers',
+          name: 'Benchmark 95% VaR',
+          line: {color: '#64748b', width: 2, dash: 'dash'},
+          marker: {size: 4},
+          hovertemplate: '<b>Benchmark VaR</b><br>' +
+                        'Date: %{x}<br>' +
+                        'VaR: %{y:.2f}%<br>' +
+                        '<extra></extra>'
+        });
+      }
+      
+      const varLayout = {
+        title: {text: 'Value-at-Risk (95%) Over Time', font: {size: 14}},
+        xaxis: {
+          title: '',
+          tickangle: 0, // Ensure labels are horizontal
+          tickfont: {size: 10} // Smaller font for better fit
+        },
+        yaxis: {
+          title: 'VaR (%)',
+          zeroline: true,
+          zerolinecolor: '#6b7280',
+          zerolinewidth: 1,
+          showgrid: true,
+          gridcolor: '#e5e7eb'
+        },
+        margin: {t: 40, b: 80, l: 50, r: 20}, // Increased bottom margin for legend
+        hovermode: 'x unified',
+        legend: {
+          orientation: 'h', // Horizontal legend
+          x: 0.5, // Center horizontally
+          y: -0.2, // Position below the chart
+          xanchor: 'center',
+          yanchor: 'top'
+        }
+      };
+      
+      Plotly.newPlot('var-chart', varData, varLayout, {
+        responsive: true,
+        displayModeBar: false
+      });
+    }
+  }
+});
+</script> 

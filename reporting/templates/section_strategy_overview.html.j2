@@ -1,0 +1,166 @@
+<!-- Strategy Overview Section -->
+<h2>Strategy Overview</h2>
+
+<div class="strategy-overview-grid">
+    <!-- Strategy Characteristics -->
+    <div class="overview-card">
+        <h3>Strategy Characteristics</h3>
+        <div class="overview-item">
+            <strong>Strategy Type:</strong> {{ strategy_overview.strategy_type }}
+        </div>
+        <div class="overview-item">
+            <strong>Asset Class:</strong> {{ strategy_overview.asset_class }}
+        </div>
+        <div class="overview-item">
+            <strong>Trading Universe:</strong> {{ strategy_overview.universe }}
+        </div>
+        <div class="overview-item">
+            <strong>Signal Frequency:</strong> {{ strategy_overview.signal_frequency }}
+        </div>
+        <div class="overview-item">
+            <strong>Holding Period:</strong> {{ strategy_overview.holding_period }}
+        </div>
+        <div class="overview-item">
+            <strong>Leverage:</strong> {{ strategy_overview.leverage_assumptions }}
+        </div>
+    </div>
+
+    <!-- Backtest Parameters -->
+    <div class="overview-card">
+        <h3>Backtest Parameters</h3>
+        <div class="overview-item">
+            <strong>Start Date:</strong> {{ strategy_overview.backtest_parameters.start_date }}
+        </div>
+        <div class="overview-item">
+            <strong>End Date:</strong> {{ strategy_overview.backtest_parameters.end_date }}
+        </div>
+        <div class="overview-item">
+            <strong>Total Days:</strong> {{ strategy_overview.backtest_parameters.total_days }}
+        </div>
+        <div class="overview-item">
+            <strong>Initial Capital:</strong> ${{ "{:,.0f}".format(strategy_overview.backtest_parameters.initial_capital) }}
+        </div>
+        <div class="overview-item">
+            <strong>Data Source:</strong> {{ strategy_overview.backtest_parameters.data_source }}
+        </div>
+    </div>
+
+    <!-- Execution Assumptions -->
+    <div class="overview-card">
+        <h3>Execution Assumptions</h3>
+        <div class="overview-item">
+            <strong>Slippage:</strong> {{ strategy_overview.execution_assumptions.slippage }}
+        </div>
+        <div class="overview-item">
+            <strong>Commission:</strong> {{ strategy_overview.execution_assumptions.commission }}
+        </div>
+        <div class="overview-item">
+            <strong>Liquidity Filters:</strong> {{ strategy_overview.execution_assumptions.liquidity_filters }}
+        </div>
+        <div class="overview-item">
+            <strong>Execution Quality:</strong> {{ strategy_overview.execution_assumptions.execution_quality }}
+        </div>
+    </div>
+</div>
+
+<!-- Strategy Description -->
+<div class="strategy-description">
+    <h3>Strategy Description</h3>
+    <p>
+        This {{ strategy_overview.strategy_type.lower() }} strategy operates in the {{ strategy_overview.asset_class.lower() }} 
+        market with a focus on {{ strategy_overview.universe }}. The strategy employs {{ strategy_overview.signal_frequency.lower() }} 
+        signals with {{ strategy_overview.holding_period.lower() }} holding periods, designed to capture 
+        market inefficiencies through systematic analysis of price patterns and market dynamics.
+    </p>
+    
+    <p>
+        The backtest covers a {{ strategy_overview.backtest_parameters.total_days }}-day period from 
+        {{ strategy_overview.backtest_parameters.start_date }} to {{ strategy_overview.backtest_parameters.end_date }}, 
+        starting with ${{ "{:,.0f}".format(strategy_overview.backtest_parameters.initial_capital) }} in initial capital. 
+        The strategy would have led to a final value of ${{ "{:,.0f}".format(strategy_overview.performance_summary.final_value) }}, 
+        representing a {{ "%.1f"|format(strategy_overview.performance_summary.total_return) }}% return over the 
+        {{ strategy_overview.backtest_parameters.total_days }}-day backtest period.
+        {% if not strategy_overview.execution_assumptions.slippage.startswith('N/A') %}
+        Execution costs include {{ strategy_overview.execution_assumptions.slippage }} slippage and 
+        {{ strategy_overview.execution_assumptions.commission }} commission per trade.
+        {% else %}
+        Execution costs and implementation details are not yet implemented in this backtest framework.
+        {% endif %}
+    </p>
+</div>
+
+<style>
+.strategy-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.overview-card {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.overview-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.overview-item {
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.overview-item strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: inline-block;
+    min-width: 120px;
+}
+
+.strategy-description {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    margin-top: 1.5rem;
+}
+
+.strategy-description h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.strategy-description p {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.strategy-description p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .strategy-overview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .overview-item strong {
+        min-width: 100px;
+    }
+}
+</style> 

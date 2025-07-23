@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ strategy_name }} Performance Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="report.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Add Inter font for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>{{ strategy_name }}</h1>
+            <p>{{ strategy_description }}</p>
+            <div class="meta">
+                <span>Period: {{ start_date }} - {{ end_date }}</span>
+                <span>Report generated: {{ report_date }}</span>
+                <span>Code version: {{ code_version }}</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="executive-summary" class="card">
+            <!-- Executive Summary -->
+            {% block executive_summary %}
+                {% include 'section_executive_summary.html.j2' %}
+            {% endblock %}
+        </section>
+
+        <section id="strategy-overview" class="card">
+            <!-- Strategy Overview -->
+            {% block strategy_overview %}
+                {% include 'section_strategy_overview.html.j2' %}
+            {% endblock %}
+        </section>
+
+        <section id="metrics" class="card">
+            <!-- Key Performance Metrics Table -->
+            {% block metrics %}
+                {% include 'section_metrics.html.j2' %}
+            {% endblock %}
+        </section>
+
+        <section id="charts" class="card">
+            <!--
+                <div id="equity-curve"></div>
+                <div id="rolling-sharpe"></div>
+                <div id="drawdown"></div>
+                <div id="returns-heatmap"></div>
+                <div id="histogram"></div>
+                <div id="exposure"></div>
+                <div id="var"></div>
+                <div id="correlation"></div>
+            -->
+            {% block charts %}
+                {% include 'section_charts.html.j2' %}
+            {% endblock %}
+        </section>
+
+        <section id="trade-summary" class="card">
+            <!-- Trade/Signal Summary Table, Plots -->
+            {% block trades %}
+                {% include 'section_trades.html.j2' %}
+            {% endblock %}
+        </section>
+
+        <section id="notes" class="card">
+            <!-- Backtest parameters, environment, notes -->
+            {% block notes %}
+                {% include 'section_notes.html.j2' %}
+            {% endblock %}
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-buttons">
+            <button onclick="window.print()" class="print-btn">📄 Download PDF</button>
+            <button onclick="toggleTheme()" class="theme-btn">🌙 Toggle Theme</button>
+            <button onclick="scrollToTop()" class="scroll-btn">⬆️ Back to Top</button>
+        </div>
+        <div class="watermark">
+            <span>Created by <strong>Thiebault Husson</strong></span>
+            <span>•</span>
+            <a href="https://github.com/thiebault-husson" target="_blank" title="View GitHub Profile">GitHub</a>
+            <span>•</span>
+            <a href="mailto:husson.thiebault@gmail.com" title="Send Email">husson.thiebault@gmail.com</a>
+        </div>
+    </footer>
+
+    <!-- Modern JavaScript Enhancements -->
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Simple fade-in for cards (reduced animation)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Apply simple fade-in effect to cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.opacity = '0.8';
+            card.style.transition = 'opacity 0.3s ease';
+            observer.observe(card);
+        });
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update button text
+            const themeBtn = document.querySelector('.theme-btn');
+            themeBtn.innerHTML = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        // Scroll to top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.querySelector('.scroll-btn');
+            if (window.scrollY > 300) {
+                scrollBtn.style.opacity = '1';
+                scrollBtn.style.visibility = 'visible';
+            } else {
+                scrollBtn.style.opacity = '0';
+                scrollBtn.style.visibility = 'hidden';
+            }
+        });
+
+        // Simple tooltip functionality
+        document.querySelectorAll('[title]').forEach(element => {
+            element.addEventListener('mouseenter', function(e) {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'simple-tooltip';
+                tooltip.textContent = this.getAttribute('title');
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: rgba(0, 0, 0, 0.9);
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    z-index: 1000;
+                    pointer-events: none;
+                    white-space: nowrap;
+                `;
+                
+                document.body.appendChild(tooltip);
+                
+                const rect = this.getBoundingClientRect();
+                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+                
+                this._tooltip = tooltip;
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                if (this._tooltip) {
+                    this._tooltip.remove();
+                    this._tooltip = null;
+                }
+            });
+        });
+
+        // Performance monitoring
+        window.addEventListener('load', () => {
+            const loadTime = performance.now();
+            console.log(`Report loaded in ${loadTime.toFixed(2)}ms`);
+            
+            // Add performance indicator to footer
+            const footer = document.querySelector('footer');
+            const perfIndicator = document.createElement('span');
+            perfIndicator.style.cssText = `
+                font-size: 12px;
+                color: var(--text-muted);
+                margin-left: 20px;
+            `;
+            perfIndicator.textContent = `⚡ Loaded in ${loadTime.toFixed(0)}ms`;
+            footer.appendChild(perfIndicator);
+        });
+
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        // Update theme button text
+        const themeBtn = document.querySelector('.theme-btn');
+        themeBtn.innerHTML = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'p':
+                        e.preventDefault();
+                        window.print();
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        toggleTheme();
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        scrollToTop();
+                        break;
+                }
+            }
+        });
+
+        // Add copy functionality for metrics
+        document.querySelectorAll('.metric-value').forEach(metric => {
+            metric.style.cursor = 'pointer';
+            metric.addEventListener('click', function() {
+                const text = this.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    // Show copy feedback
+                    const originalText = this.textContent;
+                    this.textContent = '✓ Copied!';
+                    this.style.color = 'var(--success-color)';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.color = 'var(--primary-color)';
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

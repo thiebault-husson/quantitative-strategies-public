@@ -1,0 +1,138 @@
+<h2>Trade/Signal Summary</h2>
+
+<div class="metrics-grid">
+  <!-- Signal Analysis -->
+  <div class="metric-group">
+    <h3>Signal Analysis</h3>
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Daily Signal Hit Rate</td><td class="metric-value">{{ "%.1f"|format(trades.daily_signal_hit_rate * 100) }}%</td></tr>
+        <tr><td>Signals per Month</td><td class="metric-value">{{ "%.1f"|format(trades.signals_per_month) }}</td></tr>
+        <tr><td>Position Balance</td><td class="metric-value">{{ "%.2f"|format(trades.position_balance) }}</td></tr>
+        <tr><td>Daily Turnover</td><td class="metric-value">{{ "%.3f"|format(trades.avg_daily_turnover_signal) }}</td></tr>
+      </tbody>
+    </table>
+    <div class="metric-explanations">
+      <small>
+        <strong>Daily Signal Hit Rate:</strong> Percentage of days with active signals that generated positive returns.<br>
+        <strong>Signals per Month:</strong> Average number of trading days per month with active positions.<br>
+        <strong>Position Balance:</strong> How evenly distributed positions are between assets (0=unbalanced, 1=perfectly balanced).<br>
+        <strong>Daily Turnover:</strong> Average daily change in position sizes.
+      </small>
+    </div>
+  </div>
+
+  <!-- Trade Execution -->
+  <div class="metric-group">
+    <h3>Trade Execution</h3>
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Total Trades Executed</td><td class="metric-value">{{ trades.total_trades }}</td></tr>
+        <tr><td>Win Rate</td><td class="metric-value">{{ "%.1f"|format(trades.win_rate * 100) }}%</td></tr>
+        <tr><td>Avg PnL per Trade</td><td class="metric-value">{{ "%.4f"|format(trades.avg_trade_pnl) }} (≈${{ "%.0f"|format(trades.avg_trade_pnl * 100000) }})</td></tr>
+        <tr><td>Annualized Turnover</td><td class="metric-value">{{ "%.1f"|format(trades.annualized_turnover) }}</td></tr>
+      </tbody>
+    </table>
+    <div class="metric-explanations">
+      <small>
+        <strong>Win Rate:</strong> Percentage of profitable trades (different from signal hit rate).<br>
+        <strong>Avg PnL per Trade:</strong> Average profit/loss per trade in portfolio units.<br>
+        <strong>Annualized Turnover:</strong> Total position changes per year.
+      </small>
+    </div>
+  </div>
+</div>
+
+{% if trades.data_source %}
+<div class="data-source-note">
+  <small><strong>Data Source:</strong> {{ trades.data_source|replace('_', ' ')|title }}</small>
+</div>
+{% endif %}
+
+<style>
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-group {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.metric-group h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.metrics-table th {
+  background: var(--bg-card);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.metrics-table td {
+  color: var(--text-secondary);
+}
+
+.metric-value {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.metric-explanations {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary-color);
+}
+
+.metric-explanations small {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.data-source-note {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+</style> 
