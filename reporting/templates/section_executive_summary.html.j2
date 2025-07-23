@@ -1,0 +1,269 @@
+<!-- Executive Summary Section -->
+<h2>Executive Summary</h2>
+
+<div class="executive-summary-grid">
+    <!-- Strategy Overview Card -->
+    <div class="summary-card">
+        <h3>Strategy Overview</h3>
+        <div class="summary-item">
+            <strong>Strategy:</strong> {{ executive_summary.strategy_name }}
+        </div>
+        <div class="summary-item">
+            <strong>Period:</strong> {{ executive_summary.analysis_period }}
+        </div>
+        <div class="summary-item">
+            <strong>Total Trades:</strong> {{ executive_summary.total_trades | int }}
+        </div>
+    </div>
+
+    <!-- Strategy Performance Metrics -->
+    <div class="summary-card">
+        <h3>Strategy Performance</h3>
+        <div class="metrics-grid">
+            <div class="metric-item">
+                <span class="metric-label">Total Return</span>
+                <span class="metric-value" title="Strategy total return over the analysis period">{{ "%.2f"|format(executive_summary.total_return * 100) }}%</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">Annualized Return</span>
+                <span class="metric-value" title="Strategy annualized return rate">{{ "%.2f"|format(executive_summary.annualized_return * 100) }}%</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">Volatility</span>
+                <span class="metric-value" title="Strategy annualized volatility">{{ "%.2f"|format(executive_summary.volatility * 100) }}%</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">Sharpe Ratio</span>
+                <span class="metric-value" title="Strategy risk-adjusted return measure">{{ "%.2f"|format(executive_summary.sharpe_ratio) }}</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">Max Drawdown</span>
+                <span class="metric-value" title="Strategy maximum peak-to-trough decline">{{ "%.2f"|format(executive_summary.max_drawdown * 100) }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Strategy Risk Metrics -->
+    <div class="summary-card">
+        <h3>Strategy Risk Profile</h3>
+        <div class="metrics-grid">
+            <div class="metric-item">
+                <span class="metric-label">Beta vs Benchmark</span>
+                <span class="metric-value" title="Strategy sensitivity to market movements">{{ "%.4f"|format(executive_summary.beta) }}</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">Alpha vs Benchmark</span>
+                <span class="metric-value" title="Strategy excess return vs benchmark">{{ "%.2f"|format(executive_summary.alpha * 100) }}%</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">VaR (95%)</span>
+                <span class="metric-value" title="Strategy Value at Risk at 95% confidence">{{ "%.2f"|format(executive_summary.var_95 * 100) }}%</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-label">Win Rate (Daily)</span>
+                <span class="metric-value" title="Strategy percentage of profitable days">{{ "%.1f"|format(executive_summary.win_rate * 100) }}%</span>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Key Insights -->
+<div class="insights-section">
+    <h3>Key Insights</h3>
+    <ul class="insights-list">
+        {% for insight in executive_summary.key_insights %}
+        <li>{{ insight }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<style>
+.executive-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.summary-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.summary-item {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.summary-item strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.insights-section {
+    background: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    margin-top: 1.5rem;
+}
+
+.insights-section h3 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.insights-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.insights-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.insights-list li:last-child {
+    border-bottom: none;
+}
+
+.insights-list li::before {
+    content: '•';
+    color: var(--primary-color);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.benchmark-comparison {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+    border: 2px solid var(--primary-color);
+}
+
+.benchmark-comparison h3 {
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.comparison-item {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+}
+
+.comparison-header {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.comparison-values {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.strategy-value, .benchmark-value {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+}
+
+.strategy-value .label {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.benchmark-value .label {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.strategy-value .value {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.benchmark-value .value {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .executive-summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style> 

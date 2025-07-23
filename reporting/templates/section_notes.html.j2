@@ -1,0 +1,20 @@
+<h2>Notes & Metadata</h2>
+<ul class="notes-list">
+    <li><strong>Code Version:</strong> {{ code_version }}</li>
+    <li><strong>Backtest Parameters:</strong>
+        <ul>
+            <li><strong>Lookback:</strong> {{ notes.lookback | default('N/A') }}</li>
+            <li><strong>Universe:</strong> {{ notes.universe | default('N/A') }}</li>
+            <li><strong>Slippage:</strong> N/A (Not implemented)</li>
+            <li><strong>Costs:</strong> N/A (Not implemented)</li>
+        </ul>
+    </li>
+    <li><strong>Report Generation Date:</strong> {{ report_date }}</li>
+    <li><strong>Environment:</strong> {{ notes.environment | default('Backtest') }}</li>
+</ul>
+{% if notes.additional %}
+<div class="notes-block">
+    <h3>Additional Notes</h3>
+    <p>{{ notes.additional }}</p>
+</div>
+{% endif %} 

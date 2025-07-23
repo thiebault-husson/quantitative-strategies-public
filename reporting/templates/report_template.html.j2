@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ strategy_name }} – Performance Report</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.min.css">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    /* Modern Professional Styling */
+    body { 
+      max-width: 1200px; 
+      margin: auto; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      margin: 20px;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    section { 
+      margin-bottom: 2.5em; 
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      border-left: 5px solid #667eea;
+    }
+    
+    h1 { 
+      margin-top: 0;
+      color: #2c3e50;
+      font-size: 2.5em;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    h2 { 
+      margin-top: 1.5em;
+      color: #34495e;
+      font-size: 1.8em;
+      font-weight: 600;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    h3 {
+      color: #2c3e50;
+      font-size: 1.4em;
+      font-weight: 600;
+      margin-top: 1.2em;
+      border-left: 4px solid #764ba2;
+      padding-left: 15px;
+    }
+    
+    .metrics-table { 
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .metrics-table td { 
+      padding: 15px 20px; 
+      border: none;
+      font-weight: 500;
+    }
+    
+    .metrics-table tr:nth-child(odd) {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    .metrics-table tr:nth-child(even) {
+      background: rgba(102, 126, 234, 0.1);
+      color: #2c3e50;
+    }
+    
+    .flex-container { 
+      display: flex; 
+      justify-content: space-between; 
+      margin: 20px 0; 
+      gap: 20px;
+    }
+    
+    .flex-item { 
+      flex: 1; 
+      margin: 10px; 
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .grid-container { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 20px; 
+      margin: 20px 0; 
+    }
+    
+    .grid-item { 
+      margin: 10px; 
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Professional Table Styling */
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin: 20px 0; 
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    th, td { 
+      border: none; 
+      padding: 12px 15px; 
+      text-align: center; 
+      font-weight: 500;
+    }
+    
+    th { 
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.9em;
+    }
+    
+    .table-striped tr:nth-child(even) { 
+      background: rgba(102, 126, 234, 0.05); 
+    }
+    
+    .table-striped tr:nth-child(odd) { 
+      background: rgba(255, 255, 255, 0.8); 
+    }
+    
+    /* Executive Summary Styling */
+    #executive-summary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-left: 5px solid #2c3e50;
+    }
+    
+    #executive-summary h2 {
+      color: white;
+      border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Performance Section Styling */
+    #performance {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      border-left: 5px solid #2c3e50;
+    }
+    
+    #performance h2 {
+      color: white;
+      border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    /* Footer Styling */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      border-radius: 10px;
+      font-style: italic;
+    }
+    
+    /* Chart Containers */
+    #return-chart, #drawdown-chart, #exposure-chart, #attribution-chart {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .flex-container, .grid-container {
+        flex-direction: column;
+        grid-template-columns: 1fr;
+      }
+      
+      body {
+        margin: 10px;
+      }
+      
+      .container {
+        margin: 10px;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <!-- COVER & EXECUTIVE SUMMARY -->
+  <h1>{{ strategy_name }} – Performance Report</h1>
+    <p style="text-align: center; font-size: 1.2em; color: #666; margin-bottom: 30px;"><em>Period: {{ start_date }} to {{ end_date }}</em></p>
+  <section id="executive-summary">
+    <h2>Executive Summary</h2>
+    <p>{{ executive_summary }}</p>
+  </section>
+
+  <!-- PERFORMANCE METRICS -->
+  <section id="performance">
+    <h2>Key Metrics</h2>
+    <table class="metrics-table">
+      <tr><td>Annualized Return</td><td>{{ ann_return }}</td></tr>
+      <tr><td>Volatility</td><td>{{ volatility }}</td></tr>
+      <tr><td>Sharpe Ratio</td><td>{{ sharpe }}</td></tr>
+      <tr><td>Max Drawdown</td><td>{{ max_dd }}</td></tr>
+      <tr><td>Value-at-Risk (95%)</td><td>{{ var95 }}</td></tr>
+    </table>
+    <div id="return-chart"></div>
+  </section>
+
+  <!-- STRATEGY SUMMARY -->
+  <section id="strategy-summary">
+    <h2>Strategy Summary</h2>
+    {{ strategy_summary_table|safe }}
+  </section>
+
+  <!-- DETAILED PERFORMANCE TABLES -->
+  <section id="detailed-tables">
+    <h2>Detailed Performance Analysis</h2>
+    
+    <h3>Return Summary</h3>
+    {{ summary_table|safe }}
+    
+    <h3>Annualized Returns by Year</h3>
+    {{ annual_return_table|safe }}
+    
+    <h3>Volatility Analysis</h3>
+    {{ vol_table|safe }}
+    
+    <h3>Sharpe Ratio Analysis</h3>
+    {{ sharpe_table|safe }}
+    
+    <h3>Maximum Drawdown Analysis</h3>
+    {{ drawdown_table|safe }}
+  </section>
+
+  <!-- LEGACY CHARTS -->
+  <section id="legacy-charts">
+    <h2>Performance Charts</h2>
+    
+    <div class="flex-container">
+      <div class="flex-item">
+        <h3>Cumulative Performance (Base 100)</h3>
+        <img src="assets/images/base100_performance.png" alt="Cumulative Performance Graph" style="width: 100%;">
+      </div>
+    </div>
+    
+    {% if position_sizes %}
+    <div class="flex-container">
+      <div class="flex-item">
+        <h3>Cash vs Invested Over Time</h3>
+        <img src="assets/images/cash_vs_invested.png" alt="Cash vs Invested Chart" style="width: 100%;">
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- RISK & EXPOSURES -->
+  <section id="risk-exposure">
+    <h2>Risk & Exposure Analysis</h2>
+    <div id="drawdown-chart"></div>
+    <div id="exposure-chart"></div>
+    <p>{{ risk_commentary }}</p>
+  </section>
+
+  <!-- ATTRIBUTION & FACTORS -->
+  <section id="attribution">
+    <h2>Attribution Analysis</h2>
+    <div id="attribution-chart"></div>
+    <p>{{ attribution_commentary }}</p>
+  </section>
+
+  <!-- SIGNAL & STRATEGY HEALTH -->
+  <section id="health-check">
+    <h2>Strategy Health</h2>
+    <ul>
+      <li>Signal hit rate & frequency: {{ hit_rate }}</li>
+      <li>Data completeness: {{ data_quality }}</li>
+      <li>Reported slippage & transaction cost assumptions: {{ slippage_comment }}</li>
+    </ul>
+  </section>
+
+  <!-- MARKET CONTEXT -->
+  <section id="context">
+    <h2>Market Commentary</h2>
+    <p>{{ market_commentary }}</p>
+  </section>
+
+  <!-- TECHNICAL APPENDIX -->
+  <section id="appendix">
+    <h2>Technical Appendix</h2>
+    <p>Data sources: {{ data_sources }}</p>
+    <p>Definitions & methodology: {{ methodology }}</p>
+    <p>Parameter table: {{ parameter_table|safe }}</p>
+  </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Generated on {{ report_date }} using {{ engine_name }}.</p>
+  </footer>
+
+  <!-- JS for charts -->
+  <script>
+    // Example: Insert Plotly charts if you pass chart JSON from Python
+    {% if return_chart_json %}
+      Plotly.newPlot('return-chart', {{ return_chart_json|safe }});
+    {% endif %}
+    {% if drawdown_chart_json %}
+      Plotly.newPlot('drawdown-chart', {{ drawdown_chart_json|safe }});
+    {% endif %}
+    {% if exposure_chart_json %}
+      Plotly.newPlot('exposure-chart', {{ exposure_chart_json|safe }});
+    {% endif %}
+    {% if attribution_chart_json %}
+      Plotly.newPlot('attribution-chart', {{ attribution_chart_json|safe }});
+    {% endif %}
+  </script>
+</body>
+</html> 

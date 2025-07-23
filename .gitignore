@@ -39,6 +39,17 @@ ENV/
 env.bak/
 venv.bak/
 
+# Generated files
+reports/
+logs/
+data/csv/*.csv
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+*.html
+
 # IDE
 .vscode/
 .idea/
@@ -46,9 +57,15 @@ venv.bak/
 *.swo
 *~
 
-# Logs
-*.log
-logs/
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Temporary files
 *.tmp
@@ -58,6 +75,3 @@ logs/
 *.csv
 *.xlsx
 *.json
-
-# Reports (optional - uncomment if you don't want to commit reports)
-# reports/ 

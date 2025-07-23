@@ -1,0 +1,265 @@
+<h2>Key Performance Metrics - Strategy vs Benchmark</h2>
+
+<div class="metrics-grid">
+  <!-- Strategy Performance (Returns + Risk-Adjusted) -->
+  <div class="metric-group">
+    <h3>Strategy Performance</h3>
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Strategy</th>
+          <th>Benchmark<br/>({{ benchmarks[0] }})</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Cumulative Return</td><td class="metric-value">{{ metrics.cumulative_return }}</td><td class="benchmark-value">{{ benchmark_comparison.benchmark_total_return }}</td></tr>
+        <tr><td>Annualized Return</td><td class="metric-value">{{ metrics.annualized_return }}</td><td class="benchmark-value">{{ metrics.benchmark_annualized_return|default('N/A') }}</td></tr>
+        <tr><td>Alpha</td><td class="metric-value">{{ metrics.alpha }}</td><td class="benchmark-value">0.00%</td></tr>
+        <tr><td>Sharpe Ratio</td><td class="metric-value">{{ metrics.sharpe_ratio }}</td><td class="benchmark-value">{{ metrics.benchmark_sharpe_ratio|default('N/A') }}</td></tr>
+        <tr><td>Sortino Ratio</td><td class="metric-value">{{ metrics.sortino_ratio }}</td><td class="benchmark-value">{{ metrics.benchmark_sortino_ratio|default('N/A') }}</td></tr>
+        <tr><td>Calmar Ratio</td><td class="metric-value">{{ metrics.calmar_ratio }}</td><td class="benchmark-value">{{ metrics.benchmark_calmar_ratio|default('N/A') }}</td></tr>
+        <tr><td>Beta</td><td class="metric-value">{{ metrics.beta }}</td><td class="benchmark-value">1.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Strategy Risk Profile (Risk + Trading) -->
+  <div class="metric-group">
+    <h3>Strategy Risk Profile</h3>
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Strategy</th>
+          <th>Benchmark<br/>({{ benchmarks[0] }})</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Volatility (Ann.)</td><td class="metric-value">{{ metrics.volatility }}</td><td class="benchmark-value">{{ metrics.benchmark_volatility|default('N/A') }}</td></tr>
+        <tr><td>Max Drawdown</td><td class="metric-value">{{ metrics.max_drawdown }}</td><td class="benchmark-value">{{ metrics.benchmark_max_drawdown|default('N/A') }}</td></tr>
+        <tr><td>Value-at-Risk (95%)</td><td class="metric-value">{{ metrics.var_95 }}</td><td class="benchmark-value">{{ metrics.benchmark_var_95|default('N/A') }}</td></tr>
+        <tr><td>Value-at-Risk (99%)</td><td class="metric-value">{{ metrics.var_99 }}</td><td class="benchmark-value">{{ metrics.benchmark_var_99|default('N/A') }}</td></tr>
+        <tr><td>Tail Risk</td><td class="metric-value">{{ metrics.tail_risk }}</td><td class="benchmark-value">{{ metrics.benchmark_tail_risk|default('N/A') }}</td></tr>
+        <tr><td>Win Rate (Daily)</td><td class="metric-value">{{ metrics.win_rate|default('N/A') }}</td><td class="benchmark-value">{{ metrics.benchmark_hit_ratio|default('N/A') }}</td></tr>
+        <tr><td>Turnover</td><td class="metric-value">{{ metrics.turnover|default('N/A') }}</td><td class="benchmark-value">N/A</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Period Metrics - Full Width -->
+<div class="period-metrics-container">
+  <div class="metric-group">
+    <h3>Period Performance - Strategy vs Benchmark</h3>
+    <p class="period-note">
+      <strong>Note:</strong> All returns below are <em>annualized</em> (projected annual rate). 
+      For actual cumulative returns, see the Performance Chart above.
+    </p>
+    <table class="metrics-table period-table">
+      <thead>
+        <tr>
+          <th rowspan="2">Period</th>
+          <th colspan="2" class="group-header return-group">Return (Annualized)</th>
+          <th colspan="2" class="group-header volatility-group">Volatility (Annualized)</th>
+        </tr>
+        <tr>
+          <th class="sub-header">Strategy</th>
+          <th class="sub-header">Benchmark</th>
+          <th class="sub-header">Strategy</th>
+          <th class="sub-header">Benchmark</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if period_metrics.MTD %}
+        <tr>
+          <td class="period-label">MTD</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics.MTD.strategy_return * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics.MTD.benchmark_return * 100) }}%</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics.MTD.strategy_volatility * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics.MTD.benchmark_volatility * 100) }}%</td>
+        </tr>
+        {% endif %}
+        {% if period_metrics.YTD %}
+        <tr>
+          <td class="period-label">YTD</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics.YTD.strategy_return * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics.YTD.benchmark_return * 100) }}%</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics.YTD.strategy_volatility * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics.YTD.benchmark_volatility * 100) }}%</td>
+        </tr>
+        {% endif %}
+        {% if period_metrics['1Y'] %}
+        <tr>
+          <td class="period-label">1Y</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['1Y'].strategy_return * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['1Y'].benchmark_return * 100) }}%</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['1Y'].strategy_volatility * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['1Y'].benchmark_volatility * 100) }}%</td>
+        </tr>
+        {% endif %}
+        {% if period_metrics['3Y'] %}
+        <tr>
+          <td class="period-label">3Y</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['3Y'].strategy_return * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['3Y'].benchmark_return * 100) }}%</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['3Y'].strategy_volatility * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['3Y'].benchmark_volatility * 100) }}%</td>
+        </tr>
+        {% endif %}
+        {% if period_metrics['5Y'] %}
+        <tr>
+          <td class="period-label">5Y</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['5Y'].strategy_return * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['5Y'].benchmark_return * 100) }}%</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['5Y'].strategy_volatility * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['5Y'].benchmark_volatility * 100) }}%</td>
+        </tr>
+        {% endif %}
+        {% if period_metrics['All Time'] %}
+        <tr>
+          <td class="period-label">All Time</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['All Time'].strategy_return * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['All Time'].benchmark_return * 100) }}%</td>
+          <td class="metric-value">{{ "%.2f"|format(period_metrics['All Time'].strategy_volatility * 100) }}%</td>
+          <td class="benchmark-value">{{ "%.2f"|format(period_metrics['All Time'].benchmark_volatility * 100) }}%</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.period-metrics-container {
+  margin-top: 2rem;
+}
+
+.period-note {
+  margin: 0.5rem 0 1rem 0;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.period-note strong {
+  color: #1e293b;
+}
+
+.period-note em {
+  color: #3b82f6;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.metric-group {
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.metric-group h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.metrics-table th {
+  background: var(--bg-card);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.metrics-table td {
+  color: var(--text-secondary);
+}
+
+.metric-value {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.benchmark-value {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.period-table {
+  border-top: 1px solid var(--border-light);
+}
+
+.period-table .group-header {
+  background: var(--bg-card);
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.period-table .sub-header {
+  background: var(--bg-secondary);
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.period-table .period-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.period-table .return-group {
+  border-right: 2px solid var(--border-color);
+}
+
+.period-table .volatility-group {
+  border-left: 1px solid var(--border-light);
+}
+
+.period-table tbody tr td:nth-child(3) {
+  border-right: 2px solid var(--border-color);
+}
+
+.period-table tbody tr td:nth-child(4) {
+  border-left: 1px solid var(--border-light);
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style> 
